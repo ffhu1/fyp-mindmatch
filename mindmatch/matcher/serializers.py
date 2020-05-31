@@ -43,9 +43,9 @@ class InstitutionSerializer(serializers.RelatedField):
 class AuthorSerializer(serializers.ModelSerializer):
     disciplines = DisciplineSerializer(read_only=True, many=True)
     topics = TopicSerializer(read_only=True, many=True)
-    languages = TopicSerializer(read_only=True, many=True)
-    country = TopicSerializer(read_only=True, many=True)
-    institution = TopicSerializer(read_only=True, many=True)
+    languages = LanguageSerializer(read_only=True, many=True)
+    country = CountrySerializer(read_only=True, many=True)
+    institution = InstitutionSerializer(read_only=True, many=True)
     class Meta:
         model = Author
         fields = '__all__'
@@ -54,9 +54,7 @@ class PaperSerializer(serializers.ModelSerializer):
     disciplines = DisciplineSerializer(read_only=True, many=True)
     topics = TopicSerializer(read_only=True, many=True)
     authors = AuthorSerializer(read_only=True, many=True)
-    languages = TopicSerializer(read_only=True, many=True)
-    country = TopicSerializer(read_only=True, many=True)
-    institution = TopicSerializer(read_only=True, many=True)
+    languages = LanguageSerializer(read_only=True, many=True)
     class Meta:
         model = Paper
         fields = '__all__'

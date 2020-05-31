@@ -73,7 +73,7 @@ class Paper(models.Model):
 
     topics = models.ManyToManyField('Topic')
 
-    languages = models.ForeignKey('Language', on_delete=models.CASCADE)
+    languages = models.ManyToManyField('Language')
 
     def display_disciplines(self):
         """Create a string for Disciplines. This is required to display genre in Admin."""

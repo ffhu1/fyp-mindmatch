@@ -27,6 +27,7 @@ from matcher import views
 
 router = routers.DefaultRouter()                      # add this
 router.register(r'authors', views.AuthorView, 'matcher')
+router.register(r'papers', views.PaperView, 'matcher')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

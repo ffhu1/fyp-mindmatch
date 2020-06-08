@@ -1,96 +1,98 @@
 import React, { Component } from 'react';
+import Modal from "./components/Modals";
 import logo from './logo.svg';
 import './App.css';
+import axios from "axios";
 
-const authorItems = [
-  {
-      "id": 2,
-      "disciplines": [
-          "Computer Science"
-      ],
-      "topics": [
-          "Conformance testing",
-          "Natural language generation",
-          "Natural language processing",
-          "Parallel computing",
-          "Web application"
-      ],
-      "languages": [
-          "English"
-      ],
-      "country": [
-          "Hong Kong"
-      ],
-      "institution": [
-          "The University of Hong Kong"
-      ],
-      "first_name": "Ying Cheuk",
-      "last_name": "Hui",
-      "orcid_id": null,
-      "scopus_id": null,
-      "researcher_id": null,
-      "isni_id": null,
-      "email": null
-  },
-  {
-      "id": 3,
-      "disciplines": [
-          "Computer Science"
-      ],
-      "topics": [
-          "Conformance testing",
-          "Natural language generation",
-          "Natural language processing",
-          "Parallel computing",
-          "Web application"
-      ],
-      "languages": [
-          "English"
-      ],
-      "country": [
-          "Hong Kong"
-      ],
-      "institution": [
-          "The University of Hong Kong"
-      ],
-      "first_name": "Yin Hei",
-      "last_name": "Kong",
-      "orcid_id": null,
-      "scopus_id": null,
-      "researcher_id": null,
-      "isni_id": null,
-      "email": null
-  },
-  {
-      "id": 1,
-      "disciplines": [
-          "Computer Science"
-      ],
-      "topics": [
-          "Conformance testing",
-          "Natural language generation",
-          "Natural language processing",
-          "Parallel computing",
-          "Web application"
-      ],
-      "languages": [
-          "English"
-      ],
-      "country": [
-          "Hong Kong"
-      ],
-      "institution": [
-          "The University of Hong Kong"
-      ],
-      "first_name": "John",
-      "last_name": "Lee",
-      "orcid_id": null,
-      "scopus_id": null,
-      "researcher_id": null,
-      "isni_id": null,
-      "email": null
-  }
-]
+// const authorItems = [
+//   {
+//       "id": 2,
+//       "disciplines": [
+//           "Computer Science"
+//       ],
+//       "topics": [
+//           "Conformance testing",
+//           "Natural language generation",
+//           "Natural language processing",
+//           "Parallel computing",
+//           "Web application"
+//       ],
+//       "languages": [
+//           "English"
+//       ],
+//       "country": [
+//           "Hong Kong"
+//       ],
+//       "institution": [
+//           "The University of Hong Kong"
+//       ],
+//       "first_name": "Ying Cheuk",
+//       "last_name": "Hui",
+//       "orcid_id": null,
+//       "scopus_id": null,
+//       "researcher_id": null,
+//       "isni_id": null,
+//       "email": null
+//   },
+//   {
+//       "id": 3,
+//       "disciplines": [
+//           "Computer Science"
+//       ],
+//       "topics": [
+//           "Conformance testing",
+//           "Natural language generation",
+//           "Natural language processing",
+//           "Parallel computing",
+//           "Web application"
+//       ],
+//       "languages": [
+//           "English"
+//       ],
+//       "country": [
+//           "Hong Kong"
+//       ],
+//       "institution": [
+//           "The University of Hong Kong"
+//       ],
+//       "first_name": "Yin Hei",
+//       "last_name": "Kong",
+//       "orcid_id": null,
+//       "scopus_id": null,
+//       "researcher_id": null,
+//       "isni_id": null,
+//       "email": null
+//   },
+//   {
+//       "id": 1,
+//       "disciplines": [
+//           "Computer Science"
+//       ],
+//       "topics": [
+//           "Conformance testing",
+//           "Natural language generation",
+//           "Natural language processing",
+//           "Parallel computing",
+//           "Web application"
+//       ],
+//       "languages": [
+//           "English"
+//       ],
+//       "country": [
+//           "Hong Kong"
+//       ],
+//       "institution": [
+//           "The University of Hong Kong"
+//       ],
+//       "first_name": "John",
+//       "last_name": "Lee",
+//       "orcid_id": null,
+//       "scopus_id": null,
+//       "researcher_id": null,
+//       "isni_id": null,
+//       "email": null
+//   }
+// ]
 
 const paperItems = [
   {
@@ -231,14 +233,34 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      modal: false,
       viewAuthors: true,
       viewPapers: false,
-      authorList: authorItems,
+      activeItem: {
+        first_name: "",
+        last_name: "",
+        email: "",
+        orcid_id: "",
+        scopus_id: "",
+        researcher_id: "",
+        isni_id: ""
+      },
+      authorList: [],
       paperList: paperItems
     };
 
     this.handleAuthorDisplayToggle = this.handleAuthorDisplayToggle.bind(this);
   }
+
+  componentDidMount() {
+    this.refreshList();
+  }
+  refreshList = () => {
+    axios
+      .get("http://localhost:8000/api/authors/")
+      .then(res => this.setState({ authorList: res.data }))
+      .catch(err => console.log(err));
+  };
 
   displayAuthors = status => {
     if(status) {
@@ -253,6 +275,8 @@ class App extends Component {
   //   }
   //   return this.setState({viewPapers: false});    
   // }
+
+  
 
   handleAuthorDisplayToggle() {
     this.setState(state => ({
@@ -310,14 +334,52 @@ class App extends Component {
             {item.last_name + ", " + item.first_name}
           </span>
           <span>
-            <button className="btn btn-secondary mr-2"> Edit </button>
-            <button className="btn btn-danger">Delete </button>
+            <button
+                onClick={() => this.editItem(item)}
+                className="btn btn-secondary mr-2"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => this.handleDelete(item)}
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
           </span>
         </li>
       ));
 
     }
     
+  };
+  
+  toggle = () => {
+    this.setState({ modal: !this.state.modal });
+  };
+  handleSubmit = item => {
+    this.toggle();
+    if (item.id) {
+      axios
+        .put(`http://localhost:8000/api/authors/${item.id}/`, item)
+        .then(res => this.refreshList());
+      return;
+    }
+    axios
+      .post("http://localhost:8000/api/authors/", item)
+      .then(res => this.refreshList());
+  };
+  handleDelete = item => {
+    axios
+      .delete(`http://localhost:8000/api/authors/${item.id}`)
+      .then(res => this.refreshList());
+  };
+  createItem = () => {
+    const item = { title: "", description: "", completed: false };
+    this.setState({ activeItem: item, modal: !this.state.modal });
+  };
+  editItem = item => {
+    this.setState({ activeItem: item, modal: !this.state.modal });
   };
 
   render() {
@@ -328,7 +390,7 @@ class App extends Component {
           <div className="col-md-6 col-sm-10 mx-auto p-0">
             <div className="card p-3">
               <div className="">
-                <button className="btn btn-primary">Add author</button>
+                <button onClick={this.createItem} className="btn btn-primary">Add author</button>
               </div>
               {this.renderTabList()}
               <ul className="list-group list-group-flush">
@@ -337,6 +399,13 @@ class App extends Component {
             </div>
           </div>
         </div>
+        {this.state.modal ? (
+          <Modal
+            activeItem={this.state.activeItem}
+            toggle={this.toggle}
+            onSave={this.handleSubmit}
+          />
+        ) : null}
       </main>
     );
   }

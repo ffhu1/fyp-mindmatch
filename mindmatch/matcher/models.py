@@ -57,9 +57,9 @@ class Paper(models.Model):
     title = models.CharField(max_length=254)
     abstract = models.TextField(max_length=2000)
 
-    authors = models.ManyToManyField('Author')
+    authors = models.ManyToManyField('Author', null=True, blank=True)
 
-    year = models.IntegerField()
+    year = models.IntegerField(max_length=4, null=True, blank=True)
 
     #Digital Object Identifier registered at doi.org
     doi = models.CharField(max_length=254, null=True, blank=True)
@@ -68,11 +68,11 @@ class Paper(models.Model):
     #Unique identifier used by Microsoft Academic Graph
     magid = models.CharField(max_length=254, null=True, blank=True)
 
-    disciplines = models.ManyToManyField('Discipline')
+    disciplines = models.ManyToManyField('Discipline', null=True, blank=True)
 
-    topics = models.ManyToManyField('Topic')
+    topics = models.ManyToManyField('Topic', null=True, blank=True)
 
-    languages = models.ManyToManyField('Language')
+    languages = models.ManyToManyField('Language', null=True, blank=True)
 
     def display_disciplines(self):
         """Create a string for Disciplines. This is required to display genre in Admin."""

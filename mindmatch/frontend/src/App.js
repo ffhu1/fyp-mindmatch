@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Modal from "./components/Modals";
+import UserSubmission from "./components/UserSubmission";
 import logo from './logo.svg';
 import './App.css';
 import axios from "axios";
@@ -235,7 +236,22 @@ class App extends Component {
     this.state = {
       modal: false,
       viewAuthors: true,
+      viewAbstracts: true,
       viewPapers: false,
+      activePaper: {
+        title: "",
+        abstract: "",
+        year: null,
+      },
+      activeUser: {
+        first_name: "",
+        last_name: "",
+        email: "",
+        orcid_id: "",
+        scopus_id: "",
+        researcher_id: "",
+        isni_id: ""        
+      },
       activeItem: {
         first_name: "",
         last_name: "",
@@ -246,6 +262,7 @@ class App extends Component {
         isni_id: ""
       },
       authorList: [],
+      abstractList: [],
       paperList: paperItems
     };
 
@@ -259,6 +276,10 @@ class App extends Component {
     axios
       .get("http://localhost:8000/api/authors/")
       .then(res => this.setState({ authorList: res.data }))
+      .catch(err => console.log(err));
+    axios
+      .get("http://localhost:8000/api/papers/")
+      .then(res => this.setState({ abstractList: res.data }))
       .catch(err => console.log(err));
   };
 
@@ -306,7 +327,7 @@ class App extends Component {
     );
   };
 
-  renderItems = () => {
+  renderAuthors = () => {
     //const { viewAuthors } = this.state;
     // const newItems = {this.state.viewAuthors ? this.state.authorList : null}
     // );
@@ -354,9 +375,65 @@ class App extends Component {
     
   };
   
+  renderAbstracts = () => {
+    //const { viewAuthors } = this.state;
+    // const newItems = {this.state.viewAuthors ? this.state.authorList : null}
+    // );
+
+    const newItems = null;
+
+    console.log(this.state.viewAbstracts)
+
+    if (this.state.viewAbstracts) {
+      const newItems = this.state.abstractList
+      console.log(newItems)
+
+      console.log("show abstracts")
+      return newItems.map(item => (
+        <li
+          key={item.id}
+          className="list-group-item d-flex justify-content-between align-items-center"
+        >
+          <span
+            className={`abstract-title mr-2 ${
+              this.state.viewAbstracts ? "abstracts" : ""
+            }`}
+            title={item.title}
+          >
+            {item.title}
+          </span>
+          <span>
+              <button
+                onClick={() => this.handleDeleteAbstract(item)}
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+          </span>
+        </li>
+      ));
+
+    }
+  };  
+
   toggle = () => {
     this.setState({ modal: !this.state.modal });
   };
+
+  handleSubmitPaper = item => {
+    if (item.id) {
+      console.log(item.title)
+      console.log(item.abstract)
+      axios
+      .put(`http://localhost:8000/api/papers/${item.id}/`, item)
+      .then(res => this.refreshList());
+    return;
+    }
+    axios
+    .post("http://localhost:8000/api/papers/", item)
+    .then(res => this.refreshList());
+  }
+
   handleSubmit = item => {
     this.toggle();
     if (item.id) {
@@ -374,6 +451,12 @@ class App extends Component {
       .delete(`http://localhost:8000/api/authors/${item.id}`)
       .then(res => this.refreshList());
   };
+  handleDeleteAbstract = item => {
+    axios
+      .delete(`http://localhost:8000/api/papers/${item.id}`)
+      .then(res => this.refreshList());
+  };
+
   createItem = () => {
     const item = { title: "", description: "", completed: false };
     this.setState({ activeItem: item, modal: !this.state.modal });
@@ -385,6 +468,26 @@ class App extends Component {
   render() {
     return (
       <main className="content">
+        <h1 className="text-white text-uppercase text-center my-4">Submit Abstract</h1>
+        <div className="col-md-6 col-sm-10 mx-auto p-0">
+          <div className="card p-3">
+            <UserSubmission 
+              activePaper={this.state.activePaper}
+              onSave={this.handleSubmitPaper}
+            />
+          </div>
+          
+        </div>
+
+        <h1 className="text-white text-uppercase text-center my-4">Abstracts</h1>
+        <div className="col-md-6 col-sm-10 mx-auto p-0">
+          <div className="card p-3">
+            <ul className="list-group list-group-flush">
+              {this.renderAbstracts()}
+            </ul>
+          </div>
+          
+        </div>
         <h1 className="text-white text-uppercase text-center my-4">Authors</h1>
         <div className="row ">
           <div className="col-md-6 col-sm-10 mx-auto p-0">
@@ -394,7 +497,7 @@ class App extends Component {
               </div>
               {this.renderTabList()}
               <ul className="list-group list-group-flush">
-                {this.renderItems()}
+                {this.renderAuthors()}
               </ul>
             </div>
           </div>

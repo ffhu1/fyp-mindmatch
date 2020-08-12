@@ -237,6 +237,7 @@ class App extends Component {
       modal: false,
       viewAuthors: true,
       viewAbstracts: true,
+      viewMatches: true,
       viewPapers: false,
       activePaper: {
         title: "",
@@ -263,6 +264,7 @@ class App extends Component {
       },
       authorList: [],
       abstractList: [],
+      matchList: [],
       paperList: paperItems
     };
 
@@ -304,7 +306,7 @@ class App extends Component {
       viewAuthors: !state.viewAuthors
     }));
 
-    console.log(this.state.viewAuthors)
+    //console.log(this.state.viewAuthors)
   }
 
   renderTabList = () => {
@@ -327,20 +329,46 @@ class App extends Component {
     );
   };
 
-  renderAuthors = () => {
-    //const { viewAuthors } = this.state;
-    // const newItems = {this.state.viewAuthors ? this.state.authorList : null}
-    // );
-
+  renderMatches = () => {
     const newItems = null;
 
-    console.log(this.state.viewAuthors)
+    //console.log(this.state.viewMatches)
 
-    if (this.state.viewAuthors) {
-      const newItems = this.state.authorList
+    if (this.state.viewMatches) {
+      const newItems = this.state.matchList
       console.log(newItems)
 
       console.log("show authors")
+      return newItems.map(item => (
+        <li
+          key={item.id}
+          className="list-group-item d-flex justify-content-between align-items-center"
+        >
+          <span
+             className={`author-title mr-2 ${
+               this.state.viewMatches ? "authors" : ""
+             }`}
+            title={item.last_name + ", " + item.first_name + ": " + item.email}
+          >
+            {item.last_name + ", " + item.first_name  + ": " + item.email}
+          </span>
+        </li>
+      ));
+
+    }
+    
+  };
+
+  renderAuthors = () => {
+    const newItems = null;
+
+    //console.log(this.state.viewAuthors)
+
+    if (this.state.viewAuthors) {
+      const newItems = this.state.authorList
+      //console.log(newItems)
+
+      //console.log("show authors")
       return newItems.map(item => (
         <li
           key={item.id}
@@ -382,13 +410,13 @@ class App extends Component {
 
     const newItems = null;
 
-    console.log(this.state.viewAbstracts)
+    //console.log(this.state.viewAbstracts)
 
     if (this.state.viewAbstracts) {
       const newItems = this.state.abstractList
-      console.log(newItems)
+      //console.log(newItems)
 
-      console.log("show abstracts")
+      //console.log("show abstracts")
       return newItems.map(item => (
         <li
           key={item.id}
@@ -420,10 +448,20 @@ class App extends Component {
     this.setState({ modal: !this.state.modal });
   };
 
+  handleMatches = () => {
+    //generated matches saved to the current state, need to link to matching script
+    //currently only displays existing author database
+    this.setState({ matchList: this.state.authorList });
+    console.log(this.state.authorList)
+    console.log(this.state.matchList)
+  }
+
   handleSubmitPaper = item => {
+    this.handleMatches();
     if (item.id) {
-      console.log(item.title)
-      console.log(item.abstract)
+      //console.log(item.title)
+      //console.log(item.abstract)
+      
       axios
       .put(`http://localhost:8000/api/papers/${item.id}/`, item)
       .then(res => this.refreshList());
@@ -479,6 +517,17 @@ class App extends Component {
           
         </div>
 
+        <h1 className="text-white text-uppercase text-center my-4">Matched Authors</h1>
+        <div className="row ">
+          <div className="col-md-6 col-sm-10 mx-auto p-0">
+            <div className="card p-3">
+              <ul className="list-group list-group-flush">
+                {this.renderMatches()}
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <h1 className="text-white text-uppercase text-center my-4">Abstracts</h1>
         <div className="col-md-6 col-sm-10 mx-auto p-0">
           <div className="card p-3">
@@ -488,6 +537,7 @@ class App extends Component {
           </div>
           
         </div>
+
         <h1 className="text-white text-uppercase text-center my-4">Authors</h1>
         <div className="row ">
           <div className="col-md-6 col-sm-10 mx-auto p-0">
